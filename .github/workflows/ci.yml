@@ -21,8 +21,9 @@ jobs:
           - os: windows
             cpu: amd64
         # good: 34c87de9841c0f2d01272f1c34513ce9f6f591ce
+        # good: 3e8f44b232bf6a5108e8abd6f00d208d7e1eb2d8
         # bad: 5fa96ef270a5137510d9a21e91013cea70f4c63f
-        branch: [version-2-2, 34c87de9841c0f2d01272f1c34513ce9f6f591ce, 3e8f44b232bf6a5108e8abd6f00d208d7e1eb2d8, devel]
+        branch: [version-2-2, 4a056b184921eb9d6f6a0508da0190f7443d89bf, 0347536ff2649e889cb11606a80293bf61043604, devel]
         include:
           - target:
               os: linux
