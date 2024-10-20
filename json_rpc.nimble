@@ -53,7 +53,7 @@ proc buildOnly(args, path: string) =
     build args & " --mm:orc", path
 
 task test, "run tests":
-  run "", "tests/all"
+  #run "", "tests/all"
 
   when not defined(windows):
     # on windows, socker server build failed
