@@ -2,7 +2,7 @@ name: CI
 on:
   push:
     branches:
-      - master
+      - test-2.2-regression
   pull_request:
   workflow_dispatch:
 
@@ -18,35 +18,13 @@ jobs:
         target:
           - os: linux
             cpu: amd64
-          - os: linux-gcc-14 # This is to use ubuntu 24 and install gcc 14. Should be removed when ubuntu-latest is 26.04
-            cpu: amd64
-          - os: linux
-            cpu: i386
-          - os: macos
-            cpu: amd64
-          - os: macos
-            cpu: arm64
           - os: windows
             cpu: amd64
-        branch: [version-2-0, version-2-2, devel]
+        branch: [version-2-2, 34c87de9841c0f2d01272f1c34513ce9f6f591ce, 5fa96ef270a5137510d9a21e91013cea70f4c63f, devel]
         include:
           - target:
               os: linux
             builder: ubuntu-latest
-            shell: bash
-          - target:
-              os: linux-gcc-14 # This is to use ubuntu 24 and install gcc 14. Should be removed when ubuntu-latest is 26.04
-            builder: ubuntu-24.04
-            shell: bash
-          - target:
-              os: macos
-              cpu: amd64
-            builder: macos-13
-            shell: bash
-          - target:
-              os: macos
-              cpu: arm64
-            builder: macos-latest
             shell: bash
           - target:
               os: windows
@@ -63,37 +41,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Install build dependencies (Linux i386)
-        if: runner.os == 'Linux' && matrix.target.cpu == 'i386'
-        run: |
-          sudo dpkg --add-architecture i386
-          sudo apt-get update -qq
-          sudo DEBIAN_FRONTEND='noninteractive' apt-get install \
-            --no-install-recommends -yq gcc-multilib g++-multilib \
-            libssl-dev:i386
-          mkdir -p external/bin
-          cat << EOF > external/bin/gcc
-          #!/bin/bash
-          exec $(which gcc) -m32 "\$@"
-          EOF
-          cat << EOF > external/bin/g++
-          #!/bin/bash
-          exec $(which g++) -m32 "\$@"
-          EOF
-          chmod 755 external/bin/gcc external/bin/g++
-          echo '${{ github.workspace }}/external/bin' >> $GITHUB_PATH
-
-      - name: MSYS2 (Windows i386)
-        if: runner.os == 'Windows' && matrix.target.cpu == 'i386'
-        uses: msys2/setup-msys2@v2
-        with:
-          path-type: inherit
-          msystem: MINGW32
-          install: >-
-            base-devel
-            git
-            mingw-w64-i686-toolchain
 
       - name: MSYS2 (Windows amd64)
         if: runner.os == 'Windows' && matrix.target.cpu == 'amd64'
@@ -164,15 +111,6 @@ jobs:
             QUICK_AND_DIRTY_COMPILER=1 QUICK_AND_DIRTY_NIMBLE=1 CC=gcc \
             bash build_nim.sh nim csources dist/nimble NimBinaries
           echo '${{ github.workspace }}/nim/bin' >> $GITHUB_PATH
-
-      - name: Use gcc 14
-        # Should be removed when ubuntu-latest is 26.04
-        if : ${{ matrix.target.os == 'linux-gcc-14' }}
-        run: |
-          # Add GCC-14 to alternatives
-          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-14 14
-          # Set GCC-14 as the default
-          sudo update-alternatives --set gcc /usr/bin/gcc-14
 
       - name: Run tests
         run: |
