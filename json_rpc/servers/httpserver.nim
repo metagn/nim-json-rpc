@@ -49,10 +49,9 @@ proc serveHTTP*(rpcServer: RpcHttpHandler, request: HttpRequestRef):
        Future[HttpResponseRef] {.async: (raises: [CancelledError]).} =
   try:
     let req = await request.getBody()
-    let x = request.remote().valueOr(default(TransportAddress))
-    #debug "Received JSON-RPC request",
-    #  address = request.remote().valueOr(default(TransportAddress)),
-    #  len = req.len
+    debug "Received JSON-RPC request",
+      address = Result[int, int].ok(123).valueOr(456),
+      len = req.len
 
     let
       data = await rpcServer.route(req)
